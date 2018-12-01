@@ -3,6 +3,48 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 
+class LCGDialog(Gtk.Dialog):
+
+    def __init__(self, parent, m, a, c):
+        Gtk.Dialog.__init__(self, "Configure LCG", parent, 0,
+                            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                             Gtk.STOCK_OK, Gtk.ResponseType.OK))
+        vbox = Gtk.VBox(spacing=6)
+        self.get_content_area().add(vbox)
+
+        self.m_hbox = Gtk.HBox()
+        vbox.pack_start(self.m_hbox, True, True, 0)
+
+        self.m_label = Gtk.Label(label="modulus m: ")
+        self.m_hbox.pack_start(self.m_label, True, True, 0)
+
+        self.m_entry = Gtk.Entry()
+        self.m_entry.set_text(str(m))
+        self.m_hbox.pack_start(self.m_entry, True, True, 0)
+
+        self.a_hbox = Gtk.HBox()
+        vbox.pack_start(self.a_hbox, True, True, 0)
+
+        self.a_label = Gtk.Label(label="multiplier a: ")
+        self.a_hbox.pack_start(self.a_label, True, True, 0)
+
+        self.a_entry = Gtk.Entry()
+        self.a_entry.set_text(str(a))
+        self.a_hbox.pack_start(self.a_entry, True, True, 0)
+
+        self.c_hbox = Gtk.HBox()
+        vbox.pack_start(self.c_hbox, True, True, 0)
+
+        self.c_label = Gtk.Label(label="increment c: ")
+        self.c_hbox.pack_start(self.c_label, True, True, 0)
+
+        self.c_entry = Gtk.Entry()
+        self.c_entry.set_text(str(c))
+        self.c_hbox.pack_start(self.c_entry, True, True, 0)
+
+        self.show_all()
+
+
 class SettingsWindow(Gtk.Window):
 
     LCG_m = 2**31
@@ -27,6 +69,7 @@ class SettingsWindow(Gtk.Window):
 
         self.conf_LGC = Gtk.Button.\
             new_with_label("Configure Linear Congruential Generator")
+        self.conf_LGC.connect("clicked", self.on_button_LGC)
         vbox.pack_start(self.conf_LGC, True, True, 0)
 
         self.conf_MS = Gtk.Button.\
@@ -48,46 +91,15 @@ class SettingsWindow(Gtk.Window):
     def on_button_run(self, button):
         print(self.LCG_m, self.LCG_a, self.LCG_c)
 
-class LCGDialog(Gtk.Dialog):
+    def on_button_LGC(self, button):
+        dialog = LCGDialog(self, self.LCG_m, self.LCG_a, self.LCG_c)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            print("OK")
+        elif response == Gtk.ResponseType.CANCEL:
+            print("Cancel")
 
-    def __init__(self, parent, m, a, c):
-        Gtk.Dialog.__init__(self, "Configure LCG", parent, 0,
-                            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                             Gtk.STOCK_OK, Gtk.ResponseType.OK))
-        vbox = Gtk.VBox(spacing=6)
-
-        self.m_hbox = Gtk.HBox()
-        vbox.pack_start(self.m_hbox, True, True, 0)
-        
-        self.m_label = Gtk.Label(label="modulus m: ")
-        self.m_hbox.pack_start(self.m_label, True, True, 0)
-
-        self.m_entry = Gtk.Entry()
-        self.m_entry.set_text(m)
-        self.m_hbox.pack_start(self.m_entry, True, True, 0)
-        
-        self.a_hbox = Gtk.HBox()
-        vbox.pack_start(self.a_hbox, True, True, 0)
-        
-        self.a_label = Gtk.Label(label="multiplier a: ")
-        self.a_hbox.pack_start(self.a_label, True, True, 0)
-
-        self.a_entry = Gtk.Entry()
-        self.a_entry.set_text(a)
-        self.a_hbox.pack_start(self.a_entry, True, True, 0)
-
-        self.c_hbox = Gtk.HBox()
-        vbox.pack_start(self.c_hbox, True, True, 0)
-        
-        self.c_label = Gtk.Label(label="increment c: ")
-        self.c_hbox.pack_start(self.c_label, True, True, 0)
-
-        self.c_entry = Gtk.Entry()
-        self.c_entry.set_text(c)
-        self.c_hbox.pack_start(self.c_entry, True, True, 0)
-        
-        self.add(vbox)
-        self.show_all()
+        dialog.destroy()
 
 
 sWindow = SettingsWindow()
