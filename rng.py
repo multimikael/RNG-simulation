@@ -57,7 +57,7 @@ class LCGDialog(Gtk.Dialog):
 class MSDialog(Gtk.Dialog):
 
     def __init__(self, parent, isFloor):
-        Gtk.Dialog.__init__(self, "Configure LCG", parent, 0,
+        Gtk.Dialog.__init__(self, "Configure MS", parent, 0,
                             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                              Gtk.STOCK_OK, Gtk.ResponseType.OK))
         hbox = Gtk.HBox(spacing=6)
