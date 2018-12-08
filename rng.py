@@ -44,6 +44,15 @@ class LCGDialog(Gtk.Dialog):
 
         self.show_all()
 
+    def getValue_m(self):
+        return self.m_entry.get_text()
+
+    def getValue_a(self):
+        return self.a_entry.get_text()
+
+    def getValue_c(self):
+        return self.c_entry.get_text()
+
 
 class SettingsWindow(Gtk.Window):
 
@@ -96,6 +105,12 @@ class SettingsWindow(Gtk.Window):
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             print("OK")
+            self.LCG_m = dialog.getValue_m()
+            self.LCG_a = dialog.getValue_a()
+            self.LCG_c = dialog.getValue_c()
+            print("m: %s" % self.LCG_m)
+            print("a: %s" % self.LCG_a)
+            print("c: %s" % self.LCG_c)
         elif response == Gtk.ResponseType.CANCEL:
             print("Cancel")
 
