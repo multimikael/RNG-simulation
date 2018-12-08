@@ -63,7 +63,7 @@ class MSDialog(Gtk.Dialog):
         hbox = Gtk.HBox(spacing=6)
         self.get_content_area().add(hbox)
 
-        self.floor_label = Gtk.Label(label="Use Floor instead of Round")
+        self.floor_label = Gtk.Label(label="Use Floor instead of Round: ")
         hbox.pack_start(self.floor_label, True, True, 0)
 
         self.floor_switch = Gtk.Switch()
