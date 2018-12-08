@@ -76,12 +76,36 @@ class MSDialog(Gtk.Dialog):
         return self.floor_switch.get_active()
 
 
+class LFSRDialog(Gtk.Dialog):
+
+    def __init__(self, parent, tabs):
+        Gtk.Dialog.__init__(self, "Configure MS", parent, 0,
+                            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                             Gtk.STOCK_OK, Gtk.ResponseType.OK))
+        hbox = Gtk.HBox(spacing=6)
+        self.get_content_area().add(hbox)
+
+        self.tabs_label = Gtk.Label(label="Tabs: ")
+        hbox.pack_start(self.tabs_label, True, True, 0)
+
+        self.tabs_entry = Gtk.Entry()
+        # Remove last two characters from String
+        self.tabs_entry.set_text(str(tabs)[1:-1])
+        hbox.pack_start(self.tabs_entry, True, True, 0)
+
+        self.show_all()
+
+    def getValue_tabs(self):
+        return list(map(int, self.tabs_entry.get_text().split(",")))
+
+
 class SettingsWindow(Gtk.Window):
 
     LCG_m = 2**31
     LCG_a = 1103515245
     LCG_c = 12345
     MS_isFloor = False
+    LFSR_tabs = [16, 14, 13, 11]
 
     def __init__(self):
         Gtk.Window.__init__(self, title="RNG-simulation")
@@ -110,7 +134,8 @@ class SettingsWindow(Gtk.Window):
         vbox.pack_start(self.conf_MS, True, True, 0)
 
         self.conf_LFSR = Gtk.Button.\
-            new_with_label("Configure Linear-Feedback Shift Register")
+            new_with_label("Configure Linear-Feedback Shift Register (16-bit)")
+        self.conf_LFSR.connect("clicked", self.on_button_LFSR)
         vbox.pack_start(self.conf_LFSR, True, True, 0)
 
         self.conf_CC20 = Gtk.Button.\
@@ -147,6 +172,18 @@ class SettingsWindow(Gtk.Window):
             print("OK")
             self.MS_isFloor = dialog.getValue_floor()
             print("floor: %s" % self.MS_isFloor)
+        elif response == Gtk.ResponseType.CANCEL:
+            print("Cancel")
+
+        dialog.destroy()
+
+    def on_button_LFSR(self, button):
+        dialog = LFSRDialog(self, self.LFSR_tabs)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            print("OK")
+            self.LFSR_tabs = dialog.getValue_tabs()
+            print("tabs: %s" % self.LFSR_tabs)
         elif response == Gtk.ResponseType.CANCEL:
             print("Cancel")
 
