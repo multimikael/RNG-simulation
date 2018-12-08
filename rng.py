@@ -54,11 +54,34 @@ class LCGDialog(Gtk.Dialog):
         return self.c_entry.get_text()
 
 
+class MSDialog(Gtk.Dialog):
+
+    def __init__(self, parent, isFloor):
+        Gtk.Dialog.__init__(self, "Configure LCG", parent, 0,
+                            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                             Gtk.STOCK_OK, Gtk.ResponseType.OK))
+        hbox = Gtk.HBox(spacing=6)
+        self.get_content_area().add(hbox)
+
+        self.floor_label = Gtk.Label(label="Use Floor instead of Round")
+        hbox.pack_start(self.floor_label, True, True, 0)
+
+        self.floor_switch = Gtk.Switch()
+        self.floor_switch.set_active(isFloor)
+        hbox.pack_start(self.floor_switch, True, True, 0)
+
+        self.show_all()
+
+    def getValue_floor(self):
+        return self.floor_switch.get_active()
+
+
 class SettingsWindow(Gtk.Window):
 
     LCG_m = 2**31
     LCG_a = 1103515245
     LCG_c = 12345
+    MS_isFloor = False
 
     def __init__(self):
         Gtk.Window.__init__(self, title="RNG-simulation")
@@ -83,7 +106,8 @@ class SettingsWindow(Gtk.Window):
 
         self.conf_MS = Gtk.Button.\
             new_with_label("Configure Middle-Square")
-        vbox.pack_start(self.conf_LGC, True, True, 0)
+        self.conf_MS.connect("clicked", self.on_button_MS)
+        vbox.pack_start(self.conf_MS, True, True, 0)
 
         self.conf_LFSR = Gtk.Button.\
             new_with_label("Configure Linear-Feedback Shift Register")
@@ -98,7 +122,7 @@ class SettingsWindow(Gtk.Window):
         vbox.pack_start(self.btn_run, True, True, 0)
 
     def on_button_run(self, button):
-        print(self.LCG_m, self.LCG_a, self.LCG_c)
+        print(self.LCG_m, self.LCG_a, self.LCG_c, self.MS_isFloor)
 
     def on_button_LGC(self, button):
         dialog = LCGDialog(self, self.LCG_m, self.LCG_a, self.LCG_c)
@@ -111,6 +135,18 @@ class SettingsWindow(Gtk.Window):
             print("m: %s" % self.LCG_m)
             print("a: %s" % self.LCG_a)
             print("c: %s" % self.LCG_c)
+        elif response == Gtk.ResponseType.CANCEL:
+            print("Cancel")
+
+        dialog.destroy()
+
+    def on_button_MS(self, button):
+        dialog = MSDialog(self, self.MS_isFloor)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            print("OK")
+            self.MS_isFloor = dialog.getValue_floor()
+            print("floor: %s" % self.MS_isFloor)
         elif response == Gtk.ResponseType.CANCEL:
             print("Cancel")
 
