@@ -107,6 +107,9 @@ class SettingsWindow(Gtk.Window):
     MS_max = 3
     LFSR_tabs = [16, 14, 13, 11]
 
+    rng_seed = 0
+    rng_ceiling = 999
+
     def __init__(self):
         Gtk.Window.__init__(self, title="RNG-simulation")
 
@@ -120,8 +123,18 @@ class SettingsWindow(Gtk.Window):
         self.seed_hbox.pack_start(self.seed_label, True, True, 0)
 
         self.seed_entry = Gtk.Entry()
-        self.seed_entry.set_text("0")
+        self.seed_entry.set_text(str(self.rng_seed))
         self.seed_hbox.pack_start(self.seed_entry, True, True, 0)
+
+        self.rng_ceiling_hbox = Gtk.HBox()
+        vbox.pack_start(self.rng_ceiling_hbox, True, True, 0)
+
+        self.rng_ceiling_label = Gtk.Label(label="RNG ceiling: ")
+        self.rng_ceiling_hbox.pack_start(self.rng_ceiling_label, True, True, 0)
+
+        self.rng_ceiling_entry = Gtk.Entry()
+        self.rng_ceiling_entry.set_text(str(self.rng_ceiling))
+        self.rng_ceiling_hbox.pack_start(self.rng_ceiling_entry, True, True, 0)
 
         self.conf_LGC = Gtk.Button.\
             new_with_label("Configure Linear Congruential Generator")
