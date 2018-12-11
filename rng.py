@@ -2,6 +2,9 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
+def LCG(m, a, c, X_n):
+    return (a*X_n+c) % m
+
 
 class LCGDialog(Gtk.Dialog):
 
@@ -109,6 +112,7 @@ class SettingsWindow(Gtk.Window):
 
     rng_seed = 0
     rng_ceiling = 999
+    rng_amount = 100
 
     def __init__(self):
         Gtk.Window.__init__(self, title="RNG-simulation")
@@ -116,7 +120,7 @@ class SettingsWindow(Gtk.Window):
         vbox = Gtk.VBox(spacing=6)
         self.add(vbox)
 
-        self.seed_hbox = Gtk.HBox()
+        self.seed_hbox = Gtk.HBox(homogeneous=True)
         vbox.pack_start(self.seed_hbox, True, True, 0)
 
         self.seed_label = Gtk.Label(label="Seed: ")
@@ -126,7 +130,7 @@ class SettingsWindow(Gtk.Window):
         self.seed_entry.set_text(str(self.rng_seed))
         self.seed_hbox.pack_start(self.seed_entry, True, True, 0)
 
-        self.rng_ceiling_hbox = Gtk.HBox()
+        self.rng_ceiling_hbox = Gtk.HBox(homogeneous=True)
         vbox.pack_start(self.rng_ceiling_hbox, True, True, 0)
 
         self.rng_ceiling_label = Gtk.Label(label="RNG ceiling: ")
@@ -135,6 +139,16 @@ class SettingsWindow(Gtk.Window):
         self.rng_ceiling_entry = Gtk.Entry()
         self.rng_ceiling_entry.set_text(str(self.rng_ceiling))
         self.rng_ceiling_hbox.pack_start(self.rng_ceiling_entry, True, True, 0)
+
+        self.rng_amount_hbox = Gtk.HBox(homogeneous=True)
+        vbox.pack_start(self.rng_amount_hbox, True, True, 0)
+
+        self.rng_amount_label = Gtk.Label(label="Amount to generate: ")
+        self.rng_amount_hbox.pack_start(self.rng_amount_label, True, True, 0)
+
+        self.rng_amount_entry = Gtk.Entry()
+        self.rng_amount_entry.set_text(str(self.rng_amount))
+        self.rng_amount_hbox.pack_start(self.rng_ceiling_entry, True, True, 0)
 
         self.conf_LGC = Gtk.Button.\
             new_with_label("Configure Linear Congruential Generator")
@@ -160,7 +174,15 @@ class SettingsWindow(Gtk.Window):
         vbox.pack_start(self.btn_run, True, True, 0)
 
     def on_button_run(self, button):
-        print(self.LCG_m, self.LCG_a, self.LCG_c, self.MS_isFloor)
+        self.rng_seed = int(self.seed_entry.get_text)
+        self.rng_ceiling = int(self.rng_ceiling_entry.get_text)
+        self.rng_amount = int(self.rng_amount_entry.get_text)
+        print(self.LCG_m, self.LCG_a, self.LCG_c, self.MS_max)
+
+        lcg_list = []
+        for i in range(self.rng_amount):
+            lcg_list
+
 
     def on_button_LGC(self, button):
         dialog = LCGDialog(self, self.LCG_m, self.LCG_a, self.LCG_c)
