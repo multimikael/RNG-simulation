@@ -56,24 +56,24 @@ class LCGDialog(Gtk.Dialog):
 
 class MSDialog(Gtk.Dialog):
 
-    def __init__(self, parent, isFloor):
+    def __init__(self, parent, max):
         Gtk.Dialog.__init__(self, "Configure MS", parent, 0,
                             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                              Gtk.STOCK_OK, Gtk.ResponseType.OK))
         hbox = Gtk.HBox(spacing=6)
         self.get_content_area().add(hbox)
 
-        self.floor_label = Gtk.Label(label="Use Floor instead of Round: ")
-        hbox.pack_start(self.floor_label, True, True, 0)
+        self.max_label = Gtk.Label(label="Max digits: ")
+        hbox.pack_start(self.max_label, True, True, 0)
 
-        self.floor_switch = Gtk.Switch()
-        self.floor_switch.set_active(isFloor)
-        hbox.pack_start(self.floor_switch, True, True, 0)
+        self.max_entry = Gtk.Entry()
+        self.max_entry.set_text(str(max))
+        hbox.pack_start(self.max_entry, True, True, 0)
 
         self.show_all()
 
-    def getValue_floor(self):
-        return self.floor_switch.get_active()
+    def getValue_max(self):
+        return self.max_entry.get_text()
 
 
 class LFSRDialog(Gtk.Dialog):
@@ -104,7 +104,7 @@ class SettingsWindow(Gtk.Window):
     LCG_m = 2**31
     LCG_a = 1103515245
     LCG_c = 12345
-    MS_isFloor = False
+    MS_max = 3
     LFSR_tabs = [16, 14, 13, 11]
 
     def __init__(self):
@@ -166,12 +166,12 @@ class SettingsWindow(Gtk.Window):
         dialog.destroy()
 
     def on_button_MS(self, button):
-        dialog = MSDialog(self, self.MS_isFloor)
+        dialog = MSDialog(self, self.MS_max)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             print("OK")
-            self.MS_isFloor = dialog.getValue_floor()
-            print("floor: %s" % self.MS_isFloor)
+            self.MS_max = dialog.getValue_max()
+            print("MS Max: %s" % self.MS_max)
         elif response == Gtk.ResponseType.CANCEL:
             print("Cancel")
 
