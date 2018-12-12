@@ -181,7 +181,7 @@ class SettingsWindow(Gtk.Window):
 
         lcg_list = []
         for i in range(self.rng_amount):
-            lcg_list
+            lcg_list.append()
 
 
     def on_button_LGC(self, button):
