@@ -1,3 +1,4 @@
+import math
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -5,6 +6,12 @@ from gi.repository import Gtk
 def LCG(m, a, c, X_n):
     return (a*X_n+c) % m
 
+def MS(extract, fill, seed):
+    return int(str(seed**2).zfill(fill)[int(fill/2-math.floor(extract/2)):int(fill/2+round(extract/2))])
+
+def LFSR(tabs, seed):
+    S = bin(seed)
+    
 
 class LCGDialog(Gtk.Dialog):
 
@@ -59,24 +66,40 @@ class LCGDialog(Gtk.Dialog):
 
 class MSDialog(Gtk.Dialog):
 
-    def __init__(self, parent, max):
+    def __init__(self, parent, extract, fill):
         Gtk.Dialog.__init__(self, "Configure MS", parent, 0,
                             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                              Gtk.STOCK_OK, Gtk.ResponseType.OK))
-        hbox = Gtk.HBox(spacing=6)
-        self.get_content_area().add(hbox)
+        vbox = Gtk.VBox(spacing=6)
+        self.get_content_area().add(vbox)
 
-        self.max_label = Gtk.Label(label="Max digits: ")
-        hbox.pack_start(self.max_label, True, True, 0)
+        self.extract_hbox = Gtk.HBox()
+        vbox.pack_start(self.extract_hbox, True, True, 0)
 
-        self.max_entry = Gtk.Entry()
-        self.max_entry.set_text(str(max))
-        hbox.pack_start(self.max_entry, True, True, 0)
+        self.extract_label = Gtk.Label(label="Extract digits: ")
+        self.extract_hbox.pack_start(self.extract_label, True, True, 0)
+
+        self.extract_entry = Gtk.Entry()
+        self.extract_entry.set_text(str(extract))
+        self.extract_hbox.pack_start(self.extract_entry, True, True, 0)
+
+        self.fill_hbox = Gtk.HBox()
+        vbox.pack_start(self.fill_hbox, True, True, 0)
+
+        self.fill_label = Gtk.Label(label="Fill digits: ")
+        self.fill_hbox.pack_start(self.fill_label, True, True, 0)
+
+        self.fill_entry = Gtk.Entry()
+        self.fill_entry.set_text(str(fill))
+        self.fill_hbox.pack_start(self.fill_entry, True, True, 0)
 
         self.show_all()
 
-    def getValue_max(self):
-        return self.max_entry.get_text()
+    def getValue_extract(self):
+        return self.extract_entry.get_text()
+
+    def getValue_fill(self):
+        return self.fill_entry.get_text()
 
 
 class LFSRDialog(Gtk.Dialog):
@@ -107,10 +130,11 @@ class SettingsWindow(Gtk.Window):
     LCG_m = 2**31
     LCG_a = 1103515245
     LCG_c = 12345
-    MS_max = 3
+    MS_extract = 3
+    MS_fill = 6
     LFSR_tabs = [16, 14, 13, 11]
 
-    rng_seed = 0
+    rng_seed = 123
     rng_ceiling = 999
     rng_amount = 100
 
@@ -148,7 +172,7 @@ class SettingsWindow(Gtk.Window):
 
         self.rng_amount_entry = Gtk.Entry()
         self.rng_amount_entry.set_text(str(self.rng_amount))
-        self.rng_amount_hbox.pack_start(self.rng_ceiling_entry, True, True, 0)
+        self.rng_amount_hbox.pack_start(self.rng_amount_entry, True, True, 0)
 
         self.conf_LGC = Gtk.Button.\
             new_with_label("Configure Linear Congruential Generator")
@@ -165,24 +189,37 @@ class SettingsWindow(Gtk.Window):
         self.conf_LFSR.connect("clicked", self.on_button_LFSR)
         vbox.pack_start(self.conf_LFSR, True, True, 0)
 
+        '''
         self.conf_CC20 = Gtk.Button.\
             new_with_label("Configure ChaCha20")
         vbox.pack_start(self.conf_CC20, True, True, 0)
+        '''
 
         self.btn_run = Gtk.Button.new_with_label("Run Simulation")
         self.btn_run.connect("clicked", self.on_button_run)
         vbox.pack_start(self.btn_run, True, True, 0)
 
     def on_button_run(self, button):
-        self.rng_seed = int(self.seed_entry.get_text)
-        self.rng_ceiling = int(self.rng_ceiling_entry.get_text)
-        self.rng_amount = int(self.rng_amount_entry.get_text)
-        print(self.LCG_m, self.LCG_a, self.LCG_c, self.MS_max)
+        self.rng_seed = int(self.seed_entry.get_text())
+        self.rng_ceiling = int(self.rng_ceiling_entry.get_text())
+        self.rng_amount = int(self.rng_amount_entry.get_text())
+        print(self.LCG_m, self.LCG_a, self.LCG_c, self.MS_extract)
 
-        lcg_list = []
-        for i in range(self.rng_amount):
-            lcg_list.append()
+        print("Generating %s random numbers" % self.rng_amount)
+        lcg_list = [LCG(self.LCG_m, self.LCG_a, self.LCG_c, self.rng_seed)]
+        for i in range(self.rng_amount-1):
+            lcg_list.append(LCG(self.LCG_m, self.LCG_a, self.LCG_c, lcg_list[i]))
+        print("LCG: %s" % lcg_list)
+        
+        ms_list = [MS(self.MS_extract, self.MS_fill, self.rng_seed)]
+        for i in range(self.rng_amount-1):
+            ms_list.append(MS(self.MS_extract, self.MS_fill, ms_list[i]))
+        print("MS: %s" % ms_list)
 
+        lfsr_list = [LFSR(self.LFSR_tabs, self.rng_seed)]
+        for i in range(self.rng_amount-1):
+            lfsr.append(LFSR(self.LFSR_tabs, lfsr[i]))
+        print("LFSR: %s" % lfsr_list)
 
     def on_button_LGC(self, button):
         dialog = LCGDialog(self, self.LCG_m, self.LCG_a, self.LCG_c)
@@ -201,12 +238,14 @@ class SettingsWindow(Gtk.Window):
         dialog.destroy()
 
     def on_button_MS(self, button):
-        dialog = MSDialog(self, self.MS_max)
+        dialog = MSDialog(self, self.MS_extract, self.MS_fill)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             print("OK")
-            self.MS_max = dialog.getValue_max()
-            print("MS Max: %s" % self.MS_max)
+            self.MS_extract = dialog.getValue_extract()
+            self.MS_fill = dialog.getValue_fill()
+            print("MS extract: %s" % self.MS_extract)
+            print("MS fill: %s" % self.MS_fill)
         elif response == Gtk.ResponseType.CANCEL:
             print("Cancel")
 
