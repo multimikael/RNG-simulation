@@ -1,4 +1,5 @@
 import math
+import functools
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -10,8 +11,13 @@ def MS(extract, fill, seed):
     return int(str(seed**2).zfill(fill)[int(fill/2-math.floor(extract/2)):int(fill/2+round(extract/2))])
 
 def LFSR(tabs, seed):
-    S = bin(seed)
-    
+    S = "{0:b}".format(seed).zfill(16)
+    bits = []
+    for t in tabs:
+        bits.append(int(S[t-1]))
+    bit = functools.reduce(lambda x, y: x ^ y, bits)
+    return int(str(bit) + S[:15], 2)
+
 
 class LCGDialog(Gtk.Dialog):
 
@@ -218,8 +224,16 @@ class SettingsWindow(Gtk.Window):
 
         lfsr_list = [LFSR(self.LFSR_tabs, self.rng_seed)]
         for i in range(self.rng_amount-1):
-            lfsr.append(LFSR(self.LFSR_tabs, lfsr[i]))
+            lfsr_list.append(LFSR(self.LFSR_tabs, lfsr_list[i]))
         print("LFSR: %s" % lfsr_list)
+
+        lcg_list = list(map(lambda x: x/self.LCG_m*self.rng_ceiling, lcg_list))
+        ms_list = list(map(lambda x: x/10**self.MS_extract*self.rng_ceiling, ms_list))
+        # 2^16 - 1 = 65535
+        lfsr_list = list(map(lambda x: x/65535*self.rng_ceiling, lfsr_list))
+        print("LCG adjusted: %s" % lcg_list)
+        print("MS adjusted: %s" % ms_list)
+        print("LFSR adjusted: %s" % lfsr_list)
 
     def on_button_LGC(self, button):
         dialog = LCGDialog(self, self.LCG_m, self.LCG_a, self.LCG_c)
