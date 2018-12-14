@@ -1,5 +1,6 @@
 import math
 import functools
+import matplotlib.pyplot as plt
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -8,6 +9,7 @@ def LCG(m, a, c, X_n):
     return (a*X_n+c) % m
 
 def MS(extract, fill, seed):
+    # Based on https://en.wikipedia.org/wiki/Middle-square_method#Example_implementation
     return int(str(seed**2).zfill(fill)[int(fill/2-math.floor(extract/2)):int(fill/2+round(extract/2))])
 
 def LFSR(tabs, seed):
@@ -153,7 +155,7 @@ class SettingsWindow(Gtk.Window):
     LFSR_tabs = [16, 14, 13, 11]
 
     rng_seed = 123
-    rng_ceiling = 999
+    rng_ceiling = 1000
     rng_amount = 100
 
     def __init__(self):
@@ -224,6 +226,9 @@ class SettingsWindow(Gtk.Window):
         print(self.LCG_m, self.LCG_a, self.LCG_c, self.MS_extract)
 
         print("Generating %s random numbers" % self.rng_amount)
+
+        # Generate numbers with LCG, MS and LFSR
+
         lcg_list = [LCG(self.LCG_m, self.LCG_a, self.LCG_c, self.rng_seed)]
         for i in range(self.rng_amount-1):
             lcg_list.append(LCG(self.LCG_m, self.LCG_a, self.LCG_c, lcg_list[i]))
@@ -239,6 +244,8 @@ class SettingsWindow(Gtk.Window):
             lfsr_list.append(LFSR(self.LFSR_tabs, lfsr_list[i]))
         print("LFSR: %s" % lfsr_list)
 
+        # Adjust numbers to ceiling and round/convert to integers
+
         lcg_list = list(map(lambda x: int(x/self.LCG_m*self.rng_ceiling), lcg_list))
         ms_list = list(map(lambda x: int(x/10**self.MS_extract*self.rng_ceiling), ms_list))
         # 2^16 - 1 = 65535
@@ -246,6 +253,8 @@ class SettingsWindow(Gtk.Window):
         print("LCG adjusted and rounded: %s" % lcg_list)
         print("MS adjusted and rounded: %s" % ms_list)
         print("LFSR adjusted and rounded: %s" % lfsr_list)
+
+        # Calculate Chi2
 
         e = self.rng_amount/self.rng_ceiling
         print("e: %s" % e)
@@ -255,7 +264,28 @@ class SettingsWindow(Gtk.Window):
         print("LCG chi2: %s" % lcg_chi2)
         print("MS chi2: %s" % ms_chi2)
         print("LFSR chi2: %s" % lfsr_chi2)
+
+        # Plot results
+
+        plt.figure()
+        plt.title("Linear Congruential Method - %s numbers under %s with seed: %s" % (self.rng_amount, self.rng_ceiling, self.rng_seed))
+        lcg_plot = plt.plot(lcg_list, 'ro', 
+            label="modulus m: %s \n multiplier a: %s \n increment c: %s" % (self.LCG_m, self.LCG_a, self.LCG_c))
+        plt.legend(handles=lcg_plot)
+
+        plt.figure()
+        plt.title("Middle Square Method - %s numbers under %s with seed: %s" % (self.rng_amount, self.rng_ceiling, self.rng_seed))
+        ms_plot = plt.plot(ms_list, 'ro',
+            label="Extract digits: %s \n Fill digits %s" % (self.MS_extract, self.MS_fill))
+        plt.legend(handles=ms_plot)
+
+        plt.figure()
+        plt.title("Linear Feedback Shift Register - %s numbers under %s with seed: %s" % (self.rng_amount, self.rng_ceiling, self.rng_seed))
+        lfsr_plot = plt.plot(lfsr_list, 'ro',
+            label="Tabs: %s" % str(self.LFSR_tabs)[1:-1])
+        plt.legend(handles=lfsr_plot)
         
+        plt.show()
 
     def on_button_LGC(self, button):
         dialog = LCGDialog(self, self.LCG_m, self.LCG_a, self.LCG_c)
