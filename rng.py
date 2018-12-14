@@ -5,12 +5,18 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
+
 def LCG(m, a, c, X_n):
     return (a*X_n+c) % m
 
+
 def MS(extract, fill, seed):
-    # Based on https://en.wikipedia.org/wiki/Middle-square_method#Example_implementation
-    return int(str(seed**2).zfill(fill)[int(fill/2-math.floor(extract/2)):int(fill/2+round(extract/2))])
+    # Based on Wikipedia Example:
+    # https://en.wikipedia.org/wiki/Middle-square_method#Example_implementation
+    return int(str(seed**2).zfill(fill)
+               [int(fill/2-math.floor(extract/2)):
+                int(fill/2+round(extract/2))])
+
 
 def LFSR(tabs, seed):
     S = "{0:b}".format(seed).zfill(16)
@@ -20,6 +26,7 @@ def LFSR(tabs, seed):
     bit = functools.reduce(lambda x, y: x ^ y, bits)
     return int(str(bit) + S[:15], 2)
 
+
 def chi2(observed, expected, possible_outcomes):
     res = 0
     count = []
@@ -28,10 +35,11 @@ def chi2(observed, expected, possible_outcomes):
         # range(n) starts at 0
         count.append(observed.count(i+1))
     print(count)
-    
+
     for c in count:
         res += (c-expected)**2 / expected
     return res
+
 
 class LCGDialog(Gtk.Dialog):
 
@@ -209,12 +217,6 @@ class SettingsWindow(Gtk.Window):
         self.conf_LFSR.connect("clicked", self.on_button_LFSR)
         vbox.pack_start(self.conf_LFSR, True, True, 0)
 
-        '''
-        self.conf_CC20 = Gtk.Button.\
-            new_with_label("Configure ChaCha20")
-        vbox.pack_start(self.conf_CC20, True, True, 0)
-        '''
-
         self.btn_run = Gtk.Button.new_with_label("Run Simulation")
         self.btn_run.connect("clicked", self.on_button_run)
         vbox.pack_start(self.btn_run, True, True, 0)
@@ -231,9 +233,10 @@ class SettingsWindow(Gtk.Window):
 
         lcg_list = [LCG(self.LCG_m, self.LCG_a, self.LCG_c, self.rng_seed)]
         for i in range(self.rng_amount-1):
-            lcg_list.append(LCG(self.LCG_m, self.LCG_a, self.LCG_c, lcg_list[i]))
+            lcg_list.append(LCG(self.LCG_m, self.LCG_a,
+                                self.LCG_c, lcg_list[i]))
         print("LCG: %s" % lcg_list)
-        
+
         ms_list = [MS(self.MS_extract, self.MS_fill, self.rng_seed)]
         for i in range(self.rng_amount-1):
             ms_list.append(MS(self.MS_extract, self.MS_fill, ms_list[i]))
@@ -246,10 +249,14 @@ class SettingsWindow(Gtk.Window):
 
         # Adjust numbers to ceiling and round/convert to integers
 
-        lcg_list = list(map(lambda x: int(x/self.LCG_m*self.rng_ceiling), lcg_list))
-        ms_list = list(map(lambda x: int(x/10**self.MS_extract*self.rng_ceiling), ms_list))
+        lcg_list = list(map(lambda x: int(x/self.LCG_m*self.rng_ceiling),
+                            lcg_list))
+        ms_list = list(map(lambda x:
+                           int(x/10**self.MS_extract*self.rng_ceiling),
+                           ms_list))
         # 2^16 - 1 = 65535
-        lfsr_list = list(map(lambda x: int(x/65535*self.rng_ceiling), lfsr_list))
+        lfsr_list = list(map(lambda x: int(x/65535*self.rng_ceiling),
+                             lfsr_list))
         print("LCG adjusted and rounded: %s" % lcg_list)
         print("MS adjusted and rounded: %s" % ms_list)
         print("LFSR adjusted and rounded: %s" % lfsr_list)
@@ -268,23 +275,32 @@ class SettingsWindow(Gtk.Window):
         # Plot results
 
         plt.figure()
-        plt.title("Linear Congruential Method - %s numbers under %s with seed: %s" % (self.rng_amount, self.rng_ceiling, self.rng_seed))
-        lcg_plot = plt.plot(lcg_list, 'ro', 
-            label="modulus m: %s \n multiplier a: %s \n increment c: %s" % (self.LCG_m, self.LCG_a, self.LCG_c))
+        plt.title(("Linear Congruential Method - %s numbers under %s with" +
+                   " seed: %s") % (self.rng_amount, self.rng_ceiling,
+                                   self.rng_seed))
+        lcg_plot = plt.plot(lcg_list, 'ro',
+                            label=("modulus m: %s \n" +
+                                   "multiplier a: %s \n" +
+                                   "increment c: %s") %
+                            (self.LCG_m, self.LCG_a, self.LCG_c))
         plt.legend(handles=lcg_plot)
 
         plt.figure()
-        plt.title("Middle Square Method - %s numbers under %s with seed: %s" % (self.rng_amount, self.rng_ceiling, self.rng_seed))
+        plt.title("Middle Square Method - %s numbers under %s with seed: %s" %
+                  (self.rng_amount, self.rng_ceiling, self.rng_seed))
         ms_plot = plt.plot(ms_list, 'ro',
-            label="Extract digits: %s \n Fill digits %s" % (self.MS_extract, self.MS_fill))
+                           label="Extract digits: %s \nFill digits %s" %
+                           (self.MS_extract, self.MS_fill))
         plt.legend(handles=ms_plot)
 
         plt.figure()
-        plt.title("Linear Feedback Shift Register - %s numbers under %s with seed: %s" % (self.rng_amount, self.rng_ceiling, self.rng_seed))
+        plt.title(("Linear Feedback Shift Register - %s numbers under %s" +
+                   " with seed: %s") %
+                  (self.rng_amount, self.rng_ceiling, self.rng_seed))
         lfsr_plot = plt.plot(lfsr_list, 'ro',
-            label="Tabs: %s" % str(self.LFSR_tabs)[1:-1])
+                             label="Tabs: %s" % str(self.LFSR_tabs)[1:-1])
         plt.legend(handles=lfsr_plot)
-        
+
         plt.show()
 
     def on_button_LGC(self, button):
