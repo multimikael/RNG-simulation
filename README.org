@@ -1,0 +1,5 @@
+* RNG-Simulation
+This project was developed for a school project, SRP (Studie Retnings Projekt). It requires [[https://www.python.org/downloads/][Python 3]], [[https://pygobject.readthedocs.io/en/latest/getting_started.html][PyGObject]] and [[https://matplotlib.org/users/installing.html][Matplotlib]]. Matplotlib is already in requirements.txt and can be installed by: 
+#+BEGIN_SRC sh
+pip install -r requirements.txt
+#+END_SRC
