@@ -18,6 +18,18 @@ def LFSR(tabs, seed):
     bit = functools.reduce(lambda x, y: x ^ y, bits)
     return int(str(bit) + S[:15], 2)
 
+def chi2(observed, expected, possible_outcomes):
+    res = 0
+    count = []
+    # Count numbers
+    for i in range(possible_outcomes):
+        # range(n) starts at 0
+        count.append(observed.count(i+1))
+    print(count)
+    
+    for c in count:
+        res += (c-expected)**2 / expected
+    return res
 
 class LCGDialog(Gtk.Dialog):
 
@@ -227,22 +239,32 @@ class SettingsWindow(Gtk.Window):
             lfsr_list.append(LFSR(self.LFSR_tabs, lfsr_list[i]))
         print("LFSR: %s" % lfsr_list)
 
-        lcg_list = list(map(lambda x: x/self.LCG_m*self.rng_ceiling, lcg_list))
-        ms_list = list(map(lambda x: x/10**self.MS_extract*self.rng_ceiling, ms_list))
+        lcg_list = list(map(lambda x: int(x/self.LCG_m*self.rng_ceiling), lcg_list))
+        ms_list = list(map(lambda x: int(x/10**self.MS_extract*self.rng_ceiling), ms_list))
         # 2^16 - 1 = 65535
-        lfsr_list = list(map(lambda x: x/65535*self.rng_ceiling, lfsr_list))
-        print("LCG adjusted: %s" % lcg_list)
-        print("MS adjusted: %s" % ms_list)
-        print("LFSR adjusted: %s" % lfsr_list)
+        lfsr_list = list(map(lambda x: int(x/65535*self.rng_ceiling), lfsr_list))
+        print("LCG adjusted and rounded: %s" % lcg_list)
+        print("MS adjusted and rounded: %s" % ms_list)
+        print("LFSR adjusted and rounded: %s" % lfsr_list)
+
+        e = self.rng_amount/self.rng_ceiling
+        print("e: %s" % e)
+        lcg_chi2 = chi2(lcg_list, e, self.rng_ceiling)
+        ms_chi2 = chi2(ms_list, e, self.rng_ceiling)
+        lfsr_chi2 = chi2(lfsr_list, e, self.rng_ceiling)
+        print("LCG chi2: %s" % lcg_chi2)
+        print("MS chi2: %s" % ms_chi2)
+        print("LFSR chi2: %s" % lfsr_chi2)
+        
 
     def on_button_LGC(self, button):
         dialog = LCGDialog(self, self.LCG_m, self.LCG_a, self.LCG_c)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             print("OK")
-            self.LCG_m = dialog.getValue_m()
-            self.LCG_a = dialog.getValue_a()
-            self.LCG_c = dialog.getValue_c()
+            self.LCG_m = int(dialog.getValue_m())
+            self.LCG_a = int(dialog.getValue_a())
+            self.LCG_c = int(dialog.getValue_c())
             print("m: %s" % self.LCG_m)
             print("a: %s" % self.LCG_a)
             print("c: %s" % self.LCG_c)
@@ -256,8 +278,8 @@ class SettingsWindow(Gtk.Window):
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             print("OK")
-            self.MS_extract = dialog.getValue_extract()
-            self.MS_fill = dialog.getValue_fill()
+            self.MS_extract = int(dialog.getValue_extract())
+            self.MS_fill = int(dialog.getValue_fill())
             print("MS extract: %s" % self.MS_extract)
             print("MS fill: %s" % self.MS_fill)
         elif response == Gtk.ResponseType.CANCEL:
@@ -270,7 +292,7 @@ class SettingsWindow(Gtk.Window):
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             print("OK")
-            self.LFSR_tabs = dialog.getValue_tabs()
+            self.LFSR_tabs = int(dialog.getValue_tabs())
             print("tabs: %s" % self.LFSR_tabs)
         elif response == Gtk.ResponseType.CANCEL:
             print("Cancel")
