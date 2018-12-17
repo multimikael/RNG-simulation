@@ -276,8 +276,8 @@ class SettingsWindow(Gtk.Window):
 
         plt.figure()
         plt.title(("Linear Congruential Method - %s numbers under %s with" +
-                   " seed: %s") % (self.rng_amount, self.rng_ceiling,
-                                   self.rng_seed))
+                   " seed: %s\n" + "χ²: %s") %
+                  (self.rng_amount, self.rng_ceiling, self.rng_seed, lcg_chi2))
         lcg_plot = plt.plot(lcg_list, 'ro',
                             label=("modulus m: %s \n" +
                                    "multiplier a: %s \n" +
@@ -286,8 +286,9 @@ class SettingsWindow(Gtk.Window):
         plt.legend(handles=lcg_plot)
 
         plt.figure()
-        plt.title("Middle Square Method - %s numbers under %s with seed: %s" %
-                  (self.rng_amount, self.rng_ceiling, self.rng_seed))
+        plt.title(("Middle Square Method - %s numbers under %s with seed:" +
+                   " %s\n" + "χ²: %s") %
+                  (self.rng_amount, self.rng_ceiling, self.rng_seed, ms_chi2))
         ms_plot = plt.plot(ms_list, 'ro',
                            label="Extract digits: %s \nFill digits %s" %
                            (self.MS_extract, self.MS_fill))
@@ -295,8 +296,9 @@ class SettingsWindow(Gtk.Window):
 
         plt.figure()
         plt.title(("Linear Feedback Shift Register - %s numbers under %s" +
-                   " with seed: %s") %
-                  (self.rng_amount, self.rng_ceiling, self.rng_seed))
+                   " with seed: %s\n" + "χ²: %s") %
+                  (self.rng_amount, self.rng_ceiling, self.rng_seed,
+                   lfsr_chi2))
         lfsr_plot = plt.plot(lfsr_list, 'ro',
                              label="Tabs: %s" % str(self.LFSR_tabs)[1:-1])
         plt.legend(handles=lfsr_plot)
