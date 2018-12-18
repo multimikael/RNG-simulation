@@ -133,7 +133,7 @@ class MSDialog(Gtk.Dialog):
 class LFSRDialog(Gtk.Dialog):
 
     def __init__(self, parent, tabs):
-        Gtk.Dialog.__init__(self, "Configure MS", parent, 0,
+        Gtk.Dialog.__init__(self, "Configure LFSR", parent, 0,
                             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                              Gtk.STOCK_OK, Gtk.ResponseType.OK))
         hbox = Gtk.HBox(spacing=6)
