@@ -249,10 +249,10 @@ class SettingsWindow(Gtk.Window):
 
         # Adjust numbers to ceiling and round/convert to integers
 
-        lcg_list = list(map(lambda x: int(x/self.LCG_m*self.rng_ceiling),
+        lcg_list = list(map(lambda x: int(x/(self.LCG_m-1)*self.rng_ceiling),
                             lcg_list))
         ms_list = list(map(lambda x:
-                           int(x/10**self.MS_extract*self.rng_ceiling),
+                           int(x/(10**self.MS_extract-1)*self.rng_ceiling),
                            ms_list))
         # 2^16 - 1 = 65535
         lfsr_list = list(map(lambda x: int(x/65535*self.rng_ceiling),
